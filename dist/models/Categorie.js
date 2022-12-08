@@ -28,33 +28,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../utils/database"));
 const sequelize_1 = __importStar(require("sequelize"));
-class User extends sequelize_1.Model {
+class Categorie extends sequelize_1.Model {
 }
-User.init({
+Categorie.init({
     id: {
         autoIncrement: true,
         type: sequelize_1.default.INTEGER,
         allowNull: false,
         primaryKey: true,
     },
-    username: {
-        type: sequelize_1.default.STRING,
-        allowNull: false,
-    },
-    email: {
-        type: sequelize_1.default.STRING,
-        allowNull: false,
-    },
-    password: {
-        type: sequelize_1.default.STRING,
-        allowNull: false,
-    },
-    type: {
+    name: {
         type: sequelize_1.default.STRING,
         allowNull: false,
     },
 }, {
-    tableName: "users",
+    tableName: "categories",
     sequelize: database_1.default,
 });
-exports.default = User;
+exports.default = Categorie;

@@ -14,9 +14,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const User_1 = __importDefault(require("../models/User"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const validation_result_1 = require("express-validator/src/validation-result");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const secret_1 = __importDefault(require("../utils/secret"));
 const postCreateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, username, password, retypePassword } = req.body;
+        const result = (0, validation_result_1.validationResult)(req);
+        if (!result.isEmpty()) {
+            const errorsArray = result.array();
+            let errors = "";
+            for (const index in errorsArray) {
+                errors += errorsArray[index].msg + " ";
+            }
+            let error = new Error(errors);
+            error.status = 422;
+            next(error);
+            return;
+        }
+        if (retypePassword !== password) {
+            let error = new Error("Passwords must match.");
+            error.status = 422;
+            next(error);
+            return;
+        }
         const isEmailExist = yield User_1.default.findOne({ where: { email: email } });
         if (isEmailExist) {
             let error = new Error("This email exists.");
@@ -29,6 +50,7 @@ const postCreateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             username,
             email,
             password: hashedPassword,
+            type: "admin",
         });
         res.status(201).json({ message: "User created succesfully." });
     }
@@ -36,6 +58,53 @@ const postCreateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(err);
     }
 });
-const postLoginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
+const postLoginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        const result = (0, validation_result_1.validationResult)(req);
+        if (!result.isEmpty()) {
+            const errorsArray = result.array();
+            let errors = "";
+            for (const index in errorsArray) {
+                errors += errorsArray[index].msg + " ";
+            }
+            let error = new Error(errors);
+            error.status = 422;
+            next(error);
+            return;
+        }
+        const loadedUser = yield User_1.default.findOne({
+            where: {
+                email: email,
+            },
+        });
+        if (!loadedUser) {
+            let error = new Error("Invalid email or password.");
+            error.status = 401;
+            next(error);
+            return;
+        }
+        const isEqual = yield bcryptjs_1.default.compare(password, loadedUser.password);
+        if (!isEqual) {
+            let error = new Error("Invalid email or password.");
+            error.status = 401;
+            next(error);
+            return;
+        }
+        const token = jsonwebtoken_1.default.sign({
+            email: loadedUser.email,
+            id: loadedUser.id,
+            type: loadedUser.type,
+        }, secret_1.default, { expiresIn: "1h" });
+        res.status(200).json({
+            token: token,
+            userId: loadedUser.id,
+            type: loadedUser.type,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+});
 const authController = { postCreateUser, postLoginUser };
 exports.default = authController;

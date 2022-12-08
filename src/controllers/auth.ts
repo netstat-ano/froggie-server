@@ -42,7 +42,7 @@ const postCreateUser = async (
             username,
             email,
             password: hashedPassword,
-            type: "customer",
+            type: "admin",
         });
         res.status(201).json({ message: "User created succesfully." });
     } catch (err) {
@@ -90,6 +90,7 @@ const postLoginUser = async (
             {
                 email: loadedUser.email,
                 id: loadedUser.id,
+                type: loadedUser.type,
             },
             secretKey,
             { expiresIn: "1h" }
@@ -97,7 +98,7 @@ const postLoginUser = async (
         res.status(200).json({
             token: token,
             userId: loadedUser.id,
-            userType: loadedUser.type,
+            type: loadedUser.type,
         });
     } catch (err) {
         next(err);
