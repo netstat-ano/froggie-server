@@ -1,12 +1,12 @@
 import sequelize from "../utils/database";
 import Sequelize, { Model } from "sequelize";
 
-class Categorie extends Model {
-    declare id: number;
+class Category extends Model {
+    declare id?: number;
     declare name: string;
 }
 
-Categorie.init(
+Category.init(
     {
         id: {
             autoIncrement: true,
@@ -24,4 +24,4 @@ Categorie.init(
         sequelize,
     }
 );
-export default Categorie;
+export default Category;

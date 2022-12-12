@@ -4,6 +4,8 @@ import Image from "../interfaces/Image";
 import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import ResponseError from "../interfaces/ResponseError";
 import User from "../models/User";
+import Product from "../models/Product";
+import Categorie from "../models/Category";
 
 const createProduct = async (
     req: AuthenticationRequest,
@@ -16,14 +18,6 @@ const createProduct = async (
         for (const img of files) {
             paths.push(img.path);
         }
-
-        const currentUser = await User.findByPk(req.userId);
-
-        currentUser!.createProduct({
-            name: req.body.productName,
-            description: req.body.description,
-            imagesURL: JSON.stringify(paths),
-        });
     } else {
         const err: ResponseError = new Error("Files are required");
         err.status = 422;

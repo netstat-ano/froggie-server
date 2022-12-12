@@ -5,11 +5,12 @@ import authRoutes from "./routes/authRoutes";
 import ResponseError from "./interfaces/ResponseError";
 import { Request, Response, NextFunction } from "express";
 import Multer, { FileFilterCallback } from "multer";
-import Categorie from "./models/Categorie";
+import Category from "./models/Category";
 import User from "./models/User";
 import Product from "./models/Product";
 import path from "path";
 import multer from "multer";
+import categoryRoutes from "./routes/categoryRoutes";
 import productRoutes from "./routes/productRoutes";
 const app = express();
 
@@ -38,13 +39,18 @@ const application = async () => {
             cb(null, false);
         }
     };
-    Categorie.hasMany(Product);
-    Product.belongsTo(Categorie, { onDelete: "CASCADE" });
+    Category.hasMany(Product, { foreignKey: "CategorieId" });
+    Product.belongsTo(Category, {
+        onDelete: "CASCADE",
+        foreignKey: "CategorieId",
+    });
     User.hasMany(Product, {
         sourceKey: "id",
         foreignKey: "UserId",
         as: "products",
     });
+    Product.belongsTo(User, { foreignKey: "UserId" });
+
     await sequelize.sync();
     app.use(bodyParser.json());
     app.use((req, res, next) => {
@@ -66,7 +72,7 @@ const application = async () => {
             8
         )
     );
-
+    app.use("/category", categoryRoutes);
     app.use("/auth", authRoutes);
     app.use("/product", productRoutes);
     app.use(

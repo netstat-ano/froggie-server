@@ -17,8 +17,7 @@ const isAuth = (req: Request, res: Response, next: NextFunction) => {
             error.status = 401;
             throw error;
         }
-        const loggedUser = User.findByPk(decodedToken.userId);
-        req.body.decodedToken.userId = decodedToken.userId;
+        req.body.decodedToken.userId = decodedToken.id;
         req.body.decodedToken.token = decodedToken.token;
         req.body.decodedToken.type = decodedToken.type;
         next();
