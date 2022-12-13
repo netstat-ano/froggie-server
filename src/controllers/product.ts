@@ -6,6 +6,7 @@ import ResponseError from "../interfaces/ResponseError";
 import User from "../models/User";
 import Product from "../models/Product";
 import Categorie from "../models/Category";
+import sequelize from "../utils/database";
 
 const createProduct = async (
     req: AuthenticationRequest,
@@ -18,6 +19,9 @@ const createProduct = async (
         for (const img of files) {
             paths.push(img.path);
         }
+        sequelize.query(
+            `INSERT INTO products(name, description, imagesURL, CategoryId, UserId) VALUES(${req.body.productName}, ${req.body.description}, ${paths});`
+        );
     } else {
         const err: ResponseError = new Error("Files are required");
         err.status = 422;

@@ -39,10 +39,10 @@ const application = async () => {
             cb(null, false);
         }
     };
-    Category.hasMany(Product, { foreignKey: "CategorieId" });
+    Category.hasMany(Product, { foreignKey: "CategoryId" });
     Product.belongsTo(Category, {
         onDelete: "CASCADE",
-        foreignKey: "CategorieId",
+        foreignKey: "CategoryId",
     });
     User.hasMany(Product, {
         sourceKey: "id",

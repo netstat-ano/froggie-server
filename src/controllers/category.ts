@@ -15,10 +15,10 @@ const postAddCategory = async (
         throw error;
     }
     try {
-        await Category.create({
+        const addedCategory = await Category.create({
             name: req.body.name,
         });
-        res.status(201).json({ message: "Category added succesfully." });
+        res.status(201).json({ category: addedCategory });
     } catch (err) {
         next(err);
     }
@@ -47,8 +47,8 @@ const deleteCategory = async (
 
         const findedCategory = await Category.findByPk(req.body.id);
         if (findedCategory) {
-            findedCategory.destroy();
-            res.status(200);
+            await findedCategory.destroy();
+            res.status(200).json({ message: "Category has been deleted" });
         } else {
             const error = new Error("Cannot find category with this id.");
             throw error;

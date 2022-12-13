@@ -1,6 +1,6 @@
 import sequelize from "../utils/database";
 import User from "./User";
-import Categorie from "./Category";
+import Category from "./Category";
 import Sequelize, {
     Model,
     CreationOptional,
@@ -29,7 +29,7 @@ class Product extends Model {
     declare description: string;
     declare imagesURL: string;
     declare UserId: ForeignKey<User["id"]>;
-    declare CategorieId: ForeignKey<Categorie["id"]>;
+    declare CategoryId: ForeignKey<Category["id"]>;
     declare user?: NonAttribute<User>;
 }
 Product.init(
