@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import multer from "multer";
+import { QueryTypes } from "sequelize";
 import Image from "../interfaces/Image";
 import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import ResponseError from "../interfaces/ResponseError";
-import User from "../models/User";
-import Product from "../models/Product";
-import Categorie from "../models/Category";
 import sequelize from "../utils/database";
+import Product from "../models/Product";
+import Category from "../models/Category";
+import User from "../models/User";
 
-const createProduct = async (
+const postCreateProduct = async (
     req: AuthenticationRequest,
     res: Response,
     next: NextFunction
@@ -17,10 +17,26 @@ const createProduct = async (
         const paths = [];
         const files = req.files as Image[];
         for (const img of files) {
+            console.log(img);
+
             paths.push(img.path);
         }
+        console.log(req.body);
+
         sequelize.query(
-            `INSERT INTO products(name, description, imagesURL, CategoryId, UserId) VALUES(${req.body.productName}, ${req.body.description}, ${paths});`
+            `INSERT INTO products(name, description, imagesURL, price, CategoryId, UserId)
+            VALUES(:name, :description, :imagesURL, :price, :CategoryId, :UserId);`,
+            {
+                replacements: {
+                    name: req.body.productName,
+                    description: req.body.description,
+                    imagesURL: JSON.stringify(paths),
+                    CategoryId: req.body.categoryId,
+                    UserId: req.userId,
+                    price: req.body.price,
+                },
+                type: QueryTypes.INSERT,
+            }
         );
     } else {
         const err: ResponseError = new Error("Files are required");
@@ -28,5 +44,39 @@ const createProduct = async (
         throw err;
     }
 };
-const productController = { createProduct };
+const postFetchProducts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const products = await Product.findAll();
+    if (!products) {
+    }
+};
+
+const postFetchProductByCategory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const [product, meta] = await sequelize.query(
+        "SELECT * FROM products WHERE CategoryId = :CategoryId",
+        {
+            replacements: {
+                CategoryId: req.body.categoryId,
+            },
+        }
+    );
+    if (product) {
+        res.status(200).json(product);
+    } else {
+        const error = new Error("Database issue");
+        throw error;
+    }
+};
+const productController = {
+    postCreateProduct,
+    postFetchProducts,
+    postFetchProductByCategory,
+};
 export default productController;

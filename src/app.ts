@@ -39,9 +39,11 @@ const application = async () => {
             cb(null, false);
         }
     };
-    Category.hasMany(Product, { foreignKey: "CategoryId" });
+    Category.hasMany(Product, {
+        foreignKey: "CategoryId",
+        onDelete: "cascade",
+    });
     Product.belongsTo(Category, {
-        onDelete: "CASCADE",
         foreignKey: "CategoryId",
     });
     User.hasMany(Product, {
@@ -65,7 +67,8 @@ const application = async () => {
         );
         next();
     });
-    app.use("/images", express.static(path.join(__dirname, "images")));
+    app.use(express.static("public"));
+    app.use("/public/images", express.static(path.join("public/images")));
     app.use(
         multer({ storage: fileStorage, fileFilter: fileFilter }).array(
             "images",

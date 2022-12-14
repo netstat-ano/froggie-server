@@ -28,6 +28,7 @@ class Product extends Model {
     declare name: string;
     declare description: string;
     declare imagesURL: string;
+    declare price: number;
     declare UserId: ForeignKey<User["id"]>;
     declare CategoryId: ForeignKey<Category["id"]>;
     declare user?: NonAttribute<User>;
@@ -52,10 +53,15 @@ Product.init(
             type: Sequelize.JSON,
             allowNull: false,
         },
+        price: {
+            type: Sequelize.FLOAT,
+            allowNull: false,
+        },
     },
     {
         tableName: "products",
         sequelize,
+        timestamps: false,
     }
 );
 export default Product;

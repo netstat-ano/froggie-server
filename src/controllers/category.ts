@@ -3,6 +3,10 @@ import Category from "../models/Category";
 import { NextFunction, Response, Request } from "express";
 import { validationResult } from "express-validator";
 import ResponseError from "../interfaces/ResponseError";
+import sequelize from "../utils/database";
+import Product from "../models/Product";
+import fs from "fs";
+import path from "path";
 const postAddCategory = async (
     req: AuthenticationRequest,
     res: Response,
@@ -37,16 +41,27 @@ const postFetchCategories = async (
     }
 };
 
-const deleteCategory = async (
+const postDeleteCategory = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        console.log(req.body.id);
-
         const findedCategory = await Category.findByPk(req.body.id);
         if (findedCategory) {
+            const [products, meta] = await sequelize.query(
+                "SELECT * FROM products WHERE CategoryId = :categoryId",
+                { replacements: { categoryId: findedCategory.id } }
+            );
+            for (const product of products as Product[]) {
+                for (const url of product.imagesURL) {
+                    fs.unlink(path.join(__dirname, "..", "..", url), (err) => {
+                        if (err) {
+                            next(err);
+                        }
+                    });
+                }
+            }
             await findedCategory.destroy();
             res.status(200).json({ message: "Category has been deleted" });
         } else {
@@ -58,4 +73,4 @@ const deleteCategory = async (
     }
 };
 
-export default { postAddCategory, postFetchCategories, deleteCategory };
+export default { postAddCategory, postFetchCategories, postDeleteCategory };

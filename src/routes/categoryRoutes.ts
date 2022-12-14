@@ -14,7 +14,7 @@ categoryRoutes.post(
 categoryRoutes.delete(
     "/delete-category",
     isAdminAuth,
-    categoryController.deleteCategory
+    categoryController.postDeleteCategory
 );
 
 categoryRoutes.post(

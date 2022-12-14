@@ -1,6 +1,26 @@
 import sequelize from "../utils/database";
-import Sequelize, { Model } from "sequelize";
-
+import Sequelize, {
+    Model,
+    CreationOptional,
+    InferAttributes,
+    InferCreationAttributes,
+    HasManyAddAssociationMixin,
+    HasManyCountAssociationsMixin,
+    HasManyCreateAssociationMixin,
+    HasManyGetAssociationsMixin,
+    HasManyHasAssociationMixin,
+    HasManySetAssociationsMixin,
+    HasManyAddAssociationsMixin,
+    HasManyHasAssociationsMixin,
+    HasManyRemoveAssociationMixin,
+    HasManyRemoveAssociationsMixin,
+    ModelDefined,
+    Association,
+    Optional,
+    NonAttribute,
+    ForeignKey,
+} from "sequelize";
+import Product from "./Product";
 class Category extends Model {
     declare id?: number;
     declare name: string;

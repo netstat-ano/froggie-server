@@ -31,15 +31,15 @@ class User extends Model<
     declare password: string;
     declare type: string;
 
-    declare getProjects: HasManyGetAssociationsMixin<Product>;
-    declare addProject: HasManyAddAssociationMixin<Product, number>;
-    declare addProjects: HasManyAddAssociationsMixin<Product, number>;
-    declare setProjects: HasManySetAssociationsMixin<Product, number>;
-    declare removeProject: HasManyRemoveAssociationMixin<Product, number>;
-    declare removeProjects: HasManyRemoveAssociationsMixin<Product, number>;
-    declare hasProject: HasManyHasAssociationMixin<Product, number>;
-    declare hasProjects: HasManyHasAssociationsMixin<Product, number>;
-    declare countProjects: HasManyCountAssociationsMixin;
+    declare getProducts: HasManyGetAssociationsMixin<Product>;
+    declare addProduct: HasManyAddAssociationMixin<Product, number>;
+    declare addProducts: HasManyAddAssociationsMixin<Product, number>;
+    declare setProducts: HasManySetAssociationsMixin<Product, number>;
+    declare removeProduct: HasManyRemoveAssociationMixin<Product, number>;
+    declare removeProducts: HasManyRemoveAssociationsMixin<Product, number>;
+    declare hasProduct: HasManyHasAssociationMixin<Product, number>;
+    declare hasProducts: HasManyHasAssociationsMixin<Product, number>;
+    declare countProducts: HasManyCountAssociationsMixin;
     declare createProduct: HasManyCreateAssociationMixin<Product, "UserId">;
     declare products?: NonAttribute<Product[]>;
 

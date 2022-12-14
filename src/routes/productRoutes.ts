@@ -7,7 +7,12 @@ const productRoutes = express.Router();
 productRoutes.post(
     "/create-product",
     isAdminAuth,
-    productController.createProduct
+    productController.postCreateProduct
 );
+productRoutes.post("/fetch-products", productController.postFetchProducts);
 
+productRoutes.post(
+    "/fetch-product-by-category",
+    productController.postFetchProductByCategory
+);
 export default productRoutes;
