@@ -15,4 +15,9 @@ productRoutes.post(
     "/fetch-product-by-category",
     productController.postFetchProductByCategory
 );
+
+productRoutes.post(
+    "/fetch-product-by-pk",
+    productController.postFetchProductByPk
+);
 export default productRoutes;

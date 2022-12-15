@@ -17,8 +17,6 @@ const postCreateProduct = async (
         const paths = [];
         const files = req.files as Image[];
         for (const img of files) {
-            console.log(img);
-
             paths.push(img.path);
         }
         console.log(req.body);
@@ -67,16 +65,32 @@ const postFetchProductByCategory = async (
             },
         }
     );
-    if (product) {
+    if (product.length > 0) {
         res.status(200).json(product);
     } else {
-        const error = new Error("Database issue");
-        throw error;
+        res.status(404).json({ message: "Products not found", ok: false });
+    }
+};
+
+const postFetchProductByPk = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const product = await Product.findByPk(req.body.id);
+    if (!product) {
+        res.status(404).json({
+            message: "This product doesn't exist.",
+            ok: false,
+        });
+    } else {
+        res.status(200).json({ product, ok: true });
     }
 };
 const productController = {
     postCreateProduct,
     postFetchProducts,
     postFetchProductByCategory,
+    postFetchProductByPk,
 };
 export default productController;
