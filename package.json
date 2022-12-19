@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "tsc-watch --onSuccess \"node ./dist\" & nodemon ./dist/app.js",
-        "dev": "nodemon --exec ts-node ./src/app.ts"
+        "dev": "nodemon --exec ts-node ./src/app.ts",
+        "build": "tsc"
     },
     "author": "",
     "license": "ISC",
