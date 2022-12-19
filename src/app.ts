@@ -4,7 +4,8 @@ import sequelize from "./utils/database";
 import authRoutes from "./routes/authRoutes";
 import ResponseError from "./interfaces/ResponseError";
 import { Request, Response, NextFunction } from "express";
-import Multer, { FileFilterCallback } from "multer";
+import { FileFilterCallback } from "multer";
+import CartItems from "./models/CartItems";
 import Category from "./models/Category";
 import User from "./models/User";
 import Product from "./models/Product";
@@ -12,6 +13,8 @@ import path from "path";
 import multer from "multer";
 import categoryRoutes from "./routes/categoryRoutes";
 import productRoutes from "./routes/productRoutes";
+import Cart from "./models/Cart";
+import cartRoutes from "./routes/cartRoutes";
 const app = express();
 
 const application = async () => {
@@ -40,6 +43,12 @@ const application = async () => {
             cb(null, false);
         }
     };
+    Cart.belongsToMany(Product, {
+        through: CartItems,
+    });
+    Product.belongsToMany(Cart, { through: CartItems });
+    Cart.belongsTo(User);
+    User.hasOne(Cart);
     Category.hasMany(Product, {
         foreignKey: "CategoryId",
         onDelete: "cascade",
@@ -50,7 +59,6 @@ const application = async () => {
     User.hasMany(Product, {
         sourceKey: "id",
         foreignKey: "UserId",
-        as: "products",
     });
     Product.belongsTo(User, { foreignKey: "UserId" });
 
@@ -79,6 +87,7 @@ const application = async () => {
     app.use("/category", categoryRoutes);
     app.use("/auth", authRoutes);
     app.use("/product", productRoutes);
+    app.use("/cart", cartRoutes);
     app.use(
         (
             error: ResponseError,

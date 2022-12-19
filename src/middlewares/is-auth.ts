@@ -1,10 +1,15 @@
 import { NextFunction, Request, Response } from "express";
+import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import jws from "jsonwebtoken";
 import ResponseError from "../interfaces/ResponseError";
 import secretKey from "../utils/secret";
 import UserJwtPayload from "../interfaces/UserJwtPayload";
 import User from "../models/User";
-const isAuth = (req: Request, res: Response, next: NextFunction) => {
+const isAuth = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
     const token = req.get("Authorization")?.split(" ")[1];
     if (token) {
         try {
@@ -17,9 +22,11 @@ const isAuth = (req: Request, res: Response, next: NextFunction) => {
             error.status = 401;
             throw error;
         }
-        req.body.decodedToken.userId = decodedToken.id;
-        req.body.decodedToken.token = decodedToken.token;
-        req.body.decodedToken.type = decodedToken.type;
+        const currentUser = await User.findByPk(decodedToken.id);
+        req.user = currentUser!;
+        req.userId = decodedToken.id;
+        req.token = decodedToken.token;
+        req.type = decodedToken.type;
         next();
     }
 };

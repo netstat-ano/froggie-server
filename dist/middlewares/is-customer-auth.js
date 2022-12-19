@@ -21,7 +21,7 @@ const isCustomerAuth = (req, res, next) => {
             throw error;
         }
         if (decodedToken.type === "customer") {
-            req.body.decodedToken.userId = decodedToken.userId;
+            req.body.decodedToken.userId = decodedToken.id;
             req.body.decodedToken.token = decodedToken.token;
             req.body.decodedToken.type = decodedToken.type;
             next();

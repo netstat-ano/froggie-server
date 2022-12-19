@@ -52,7 +52,10 @@ const postCreateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             password: hashedPassword,
             type: "admin",
         });
-        res.status(201).json({ message: "User created succesfully." });
+        res.status(201).json({
+            message: "User created succesfully.",
+            ok: true,
+        });
     }
     catch (err) {
         next(err);
@@ -100,6 +103,7 @@ const postLoginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             token: token,
             userId: loadedUser.id,
             type: loadedUser.type,
+            ok: true,
         });
     }
     catch (err) {

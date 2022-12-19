@@ -16,12 +16,16 @@ const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const database_1 = __importDefault(require("./utils/database"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
-const Categorie_1 = __importDefault(require("./models/Categorie"));
+const CartItems_1 = __importDefault(require("./models/CartItems"));
+const Category_1 = __importDefault(require("./models/Category"));
 const User_1 = __importDefault(require("./models/User"));
 const Product_1 = __importDefault(require("./models/Product"));
 const path_1 = __importDefault(require("path"));
 const multer_1 = __importDefault(require("multer"));
+const categoryRoutes_1 = __importDefault(require("./routes/categoryRoutes"));
 const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
+const Cart_1 = __importDefault(require("./models/Cart"));
+const cartRoutes_1 = __importDefault(require("./routes/cartRoutes"));
 const app = (0, express_1.default)();
 const application = () => __awaiter(void 0, void 0, void 0, function* () {
     const fileStorage = multer_1.default.diskStorage({
@@ -35,17 +39,32 @@ const application = () => __awaiter(void 0, void 0, void 0, function* () {
     const fileFilter = (req, file, cb) => {
         if (file.mimetype === "image/png" ||
             file.mimetype === "image/jpg" ||
-            file.mimetype === "image/jpeg") {
+            file.mimetype === "image/jpeg" ||
+            file.mimetype === "image/webp") {
             cb(null, true);
         }
         else {
             cb(null, false);
         }
     };
-    Categorie_1.default.hasMany(Product_1.default);
-    Product_1.default.belongsTo(Categorie_1.default, { onDelete: "CASCADE" });
-    User_1.default.hasMany(Product_1.default);
-    Product_1.default.belongsTo(User_1.default, { constraints: true, onDelete: "CASCADE" });
+    Cart_1.default.belongsToMany(Product_1.default, {
+        through: CartItems_1.default,
+    });
+    Product_1.default.belongsToMany(Cart_1.default, { through: CartItems_1.default });
+    Cart_1.default.belongsTo(User_1.default);
+    User_1.default.hasOne(Cart_1.default);
+    Category_1.default.hasMany(Product_1.default, {
+        foreignKey: "CategoryId",
+        onDelete: "cascade",
+    });
+    Product_1.default.belongsTo(Category_1.default, {
+        foreignKey: "CategoryId",
+    });
+    User_1.default.hasMany(Product_1.default, {
+        sourceKey: "id",
+        foreignKey: "UserId",
+    });
+    Product_1.default.belongsTo(User_1.default, { foreignKey: "UserId" });
     yield database_1.default.sync();
     app.use(body_parser_1.default.json());
     app.use((req, res, next) => {
@@ -54,10 +73,13 @@ const application = () => __awaiter(void 0, void 0, void 0, function* () {
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         next();
     });
-    app.use("/images", express_1.default.static(path_1.default.join(__dirname, "images")));
+    app.use(express_1.default.static("public"));
+    app.use("/public/images", express_1.default.static(path_1.default.join("public/images")));
     app.use((0, multer_1.default)({ storage: fileStorage, fileFilter: fileFilter }).array("images", 8));
+    app.use("/category", categoryRoutes_1.default);
     app.use("/auth", authRoutes_1.default);
     app.use("/product", productRoutes_1.default);
+    app.use("/cart", cartRoutes_1.default);
     app.use((error, req, res, next) => {
         const status = error.status || 500;
         console.log(error);

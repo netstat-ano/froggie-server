@@ -28,9 +28,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../utils/database"));
 const sequelize_1 = __importStar(require("sequelize"));
-class Product extends sequelize_1.Model {
+class Category extends sequelize_1.Model {
 }
-Product.init({
+Category.init({
     id: {
         autoIncrement: true,
         type: sequelize_1.default.INTEGER,
@@ -41,21 +41,8 @@ Product.init({
         type: sequelize_1.default.STRING,
         allowNull: false,
     },
-    description: {
-        type: sequelize_1.default.STRING,
-        allowNull: false,
-    },
-    imagesURL: {
-        type: sequelize_1.default.JSON,
-        allowNull: false,
-    },
-    price: {
-        type: sequelize_1.default.FLOAT,
-        allowNull: false,
-    },
 }, {
-    tableName: "products",
+    tableName: "categories",
     sequelize: database_1.default,
-    timestamps: false,
 });
-exports.default = Product;
+exports.default = Category;
