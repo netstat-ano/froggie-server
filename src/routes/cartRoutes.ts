@@ -4,4 +4,6 @@ import cartController from "../controllers/cart";
 const cartRoutes = express.Router();
 
 cartRoutes.post("/add-product", isAuth, cartController.postAddProduct);
+cartRoutes.post("/reduce-product", isAuth, cartController.postReduceProduct);
+cartRoutes.post("/fetch-cart", isAuth, cartController.postFetchCart);
 export default cartRoutes;
