@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import Cart from "../models/Cart";
 import sequelize from "../utils/database";
@@ -127,4 +127,33 @@ const postFetchCart = async (
         res.status(404).json({ message: "Cart doesn't founded", ok: false });
     }
 };
-export default { postAddProduct, postReduceProduct, postFetchCart };
+const postDeleteCart = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const foundedCart = await Cart.findOne({
+            where: {
+                UserId: req.userId,
+            },
+        });
+        if (foundedCart) {
+            foundedCart.destroy();
+            res.status(204).json({
+                message: "Cart successfully deleted.",
+                ok: true,
+            });
+        } else {
+            res.status(404).json({ message: "Cart doesn't exist", ok: false });
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+export default {
+    postAddProduct,
+    postReduceProduct,
+    postFetchCart,
+    postDeleteCart,
+};
