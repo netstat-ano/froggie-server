@@ -14,7 +14,10 @@ import multer from "multer";
 import categoryRoutes from "./routes/categoryRoutes";
 import productRoutes from "./routes/productRoutes";
 import Cart from "./models/Cart";
+import Order from "./models/Order";
+import orderRoutes from "./routes/orderRoutes";
 import cartRoutes from "./routes/cartRoutes";
+import OrderItems from "./models/OrderItems";
 const app = express();
 
 const application = async () => {
@@ -49,6 +52,10 @@ const application = async () => {
     Product.belongsToMany(Cart, { through: CartItems });
     Cart.belongsTo(User);
     User.hasOne(Cart);
+    User.hasMany(Order);
+    Order.belongsTo(User);
+    Order.belongsToMany(Product, { through: OrderItems });
+    Product.belongsToMany(Order, { through: OrderItems });
     Category.hasMany(Product, {
         foreignKey: "CategoryId",
         onDelete: "cascade",
@@ -84,6 +91,7 @@ const application = async () => {
             8
         )
     );
+    app.use("/order", orderRoutes);
     app.use("/category", categoryRoutes);
     app.use("/auth", authRoutes);
     app.use("/product", productRoutes);
