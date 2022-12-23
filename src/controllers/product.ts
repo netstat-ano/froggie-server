@@ -7,6 +7,8 @@ import sequelize from "../utils/database";
 import Product from "../models/Product";
 import Category from "../models/Category";
 import User from "../models/User";
+import fs from "fs";
+import path from "path";
 
 const postCreateProduct = async (
     req: AuthenticationRequest,
@@ -19,7 +21,6 @@ const postCreateProduct = async (
         for (const img of files) {
             paths.push(img.path);
         }
-        console.log(req.body);
 
         sequelize.query(
             `INSERT INTO products(name, description, imagesURL, price, CategoryId, UserId)
@@ -87,10 +88,57 @@ const postFetchProductByPk = async (
         res.status(200).json({ product, ok: true });
     }
 };
+const postUpdateProduct = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const paths = [];
+        if (req.files) {
+            const files = req.files as Image[];
+            for (const img of files) {
+                paths.push(img.path);
+            }
+        } else {
+            res.status(404).json({ message: "Images empty", ok: false });
+        }
+        const [products, metaP] = await sequelize.query(
+            `SELECT * FROM products WHERE id = :id;`,
+            { replacements: { id: req.body.ProductId } }
+        );
+        for (const product of products as Product[]) {
+            for (const url of product.imagesURL) {
+                fs.unlink(path.join(__dirname, "..", "..", url), (err) => {
+                    if (err) {
+                        next(err);
+                    }
+                });
+            }
+        }
+        const [result, meta] = await sequelize.query(
+            `UPDATE products SET name = :name, description = :description, price = :price, CategoryId = :CategoryId, imagesURL = :imagesURL WHERE id = :ProductId;`,
+            {
+                replacements: {
+                    name: req.body.productName,
+                    description: req.body.description,
+                    imagesURL: JSON.stringify(paths),
+                    CategoryId: req.body.CategoryId,
+                    price: req.body.price,
+                    ProductId: req.body.ProductId,
+                },
+            }
+        );
+        res.status(200).json({ message: "Product updated!", ok: true });
+    } catch (err) {
+        next(err);
+    }
+};
 const productController = {
     postCreateProduct,
     postFetchProducts,
     postFetchProductByCategory,
     postFetchProductByPk,
+    postUpdateProduct,
 };
 export default productController;

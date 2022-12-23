@@ -20,4 +20,9 @@ productRoutes.post(
     "/fetch-product-by-pk",
     productController.postFetchProductByPk
 );
+productRoutes.post(
+    "/update-product",
+    isAdminAuth,
+    productController.postUpdateProduct
+);
 export default productRoutes;
