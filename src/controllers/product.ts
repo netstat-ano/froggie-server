@@ -5,16 +5,25 @@ import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import ResponseError from "../interfaces/ResponseError";
 import sequelize from "../utils/database";
 import Product from "../models/Product";
-import Category from "../models/Category";
-import User from "../models/User";
 import fs from "fs";
 import path from "path";
+import { validationResult } from "express-validator";
 
 const postCreateProduct = async (
     req: AuthenticationRequest,
     res: Response,
     next: NextFunction
 ) => {
+    const valResult = validationResult(req);
+    if (!valResult.isEmpty()) {
+        let errors = "";
+        const errorsArray = valResult.array();
+        for (const index in errorsArray) {
+            errors += errorsArray[index].msg + " ";
+        }
+        res.status(422).json({ message: errors, ok: false });
+        return;
+    }
     if (req.files) {
         const paths = [];
         const files = req.files as Image[];
@@ -94,6 +103,16 @@ const postUpdateProduct = async (
     next: NextFunction
 ) => {
     try {
+        const valResult = validationResult(req);
+        if (!valResult.isEmpty()) {
+            let errors = "";
+            const errorsArray = valResult.array();
+            for (const index in errorsArray) {
+                errors += errorsArray[index].msg + " ";
+            }
+            res.status(422).json({ message: errors, ok: false });
+            return;
+        }
         const paths = [];
         if (req.files) {
             const files = req.files as Image[];

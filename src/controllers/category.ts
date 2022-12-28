@@ -34,8 +34,17 @@ const postFetchCategories = async (
     next: NextFunction
 ) => {
     try {
-        const response = await Category.findAll({ attributes: ["id", "name"] });
-        res.status(200).json({ categories: response });
+        const categories = await Category.findAll({
+            attributes: ["id", "name"],
+        });
+        if (categories.length === 0) {
+            res.status(404).json({
+                message: "Categories not found",
+                ok: false,
+            });
+            return;
+        }
+        res.status(200).json({ categories: categories });
     } catch (err) {
         next(err);
     }

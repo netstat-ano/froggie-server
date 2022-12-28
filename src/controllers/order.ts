@@ -43,23 +43,48 @@ const postFetchOrdersByUser = async (
     next: NextFunction
 ) => {
     try {
-        const [orders, meta] = await sequelize.query(
-            `SELECT orderitems.amount, products.name, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId  FROM orderitems
+        if (!req.body.sort) {
+            var [orders, meta] = await sequelize.query(
+                `SELECT orderitems.amount, products.name, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE orders.UserId = :UserId;`,
-            {
-                replacements: {
-                    UserId: req.userId,
-                },
+                {
+                    replacements: {
+                        UserId: req.userId,
+                    },
+                }
+            );
+        } else {
+            let sort = "";
+            if (req.body.sort === "DATE ASC") {
+                sort = "orders.createdAt ASC";
+            } else if (req.body.sort === "DATE DESC") {
+                sort = "orders.createdAt DESC";
             }
-        );
-
-        res.status(200).json({
-            orders: orders,
-            message: "Orders fetched succesfully",
-            ok: true,
-        });
+            var [orders, meta] = await sequelize.query(
+                `SELECT orderitems.amount, products.name, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                JOIN products on orderitems.ProductId = products.id
+                JOIN orders on orders.id = orderitems.OrderId
+                WHERE orders.UserId = :UserId
+                ORDER BY ${sort}`,
+                {
+                    replacements: {
+                        UserId: req.userId,
+                    },
+                }
+            );
+        }
+        if (orders.length > 0) {
+            res.status(200).json({
+                orders: orders,
+                message: "Orders fetched succesfully",
+                ok: true,
+            });
+            return;
+        } else {
+            res.status(404).json({ message: "Orders not found.", ok: false });
+        }
     } catch (err) {
         next(err);
     }

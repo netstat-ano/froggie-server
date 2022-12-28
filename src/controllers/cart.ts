@@ -144,8 +144,10 @@ const postDeleteCart = async (
                 message: "Cart successfully deleted.",
                 ok: true,
             });
+            return;
         } else {
             res.status(404).json({ message: "Cart doesn't exist", ok: false });
+            return;
         }
     } catch (err) {
         next(err);

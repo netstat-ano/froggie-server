@@ -6,6 +6,13 @@ const productRoutes = express.Router();
 
 productRoutes.post(
     "/create-product",
+    [
+        body("productName").notEmpty().withMessage("Name can't be empty."),
+        body("description")
+            .notEmpty()
+            .withMessage("Description can't be empty."),
+        body("price").notEmpty().withMessage("Price can't be empty."),
+    ],
     isAdminAuth,
     productController.postCreateProduct
 );
@@ -22,6 +29,14 @@ productRoutes.post(
 );
 productRoutes.post(
     "/update-product",
+    [
+        body("productName").notEmpty().withMessage("Name can't be empty."),
+        body("description")
+            .notEmpty()
+            .withMessage("Description can't be empty."),
+        body("price").notEmpty().withMessage("Price can't be empty."),
+        body("ProductId").notEmpty().withMessage("Invalid product id."),
+    ],
     isAdminAuth,
     productController.postUpdateProduct
 );
