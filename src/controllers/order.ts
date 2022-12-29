@@ -2,17 +2,35 @@ import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import { NextFunction, Request, Response } from "express";
 import sequelize from "../utils/database";
 import CartItems from "../models/CartItems";
+import { validationResult } from "express-validator";
 const postAddOrder = async (
     req: AuthenticationRequest,
     res: Response,
     next: NextFunction
 ) => {
     try {
+        const validationErrors = validationResult(req);
+        if (!validationErrors.isEmpty()) {
+            const errorsArray = validationErrors.array();
+            let errors = "";
+            for (const index in errorsArray) {
+                errors += errorsArray[index].msg + " ";
+            }
+            res.status(403).json({
+                message: errors,
+                ok: false,
+            });
+        }
         const [orderId, meta] = await sequelize.query(
-            "INSERT INTO orders(UserId) VALUES(:UserId)",
+            "INSERT INTO orders(UserId, name, surname, address, postalCode, city) VALUES(:UserId, :name, :surname, :address, :postalCode, :city)",
             {
                 replacements: {
                     UserId: req.userId,
+                    name: req.body.name,
+                    surname: req.body.surname,
+                    address: req.body.address,
+                    postalCode: req.body.postalCode,
+                    city: req.body.city,
                 },
             }
         );
@@ -45,7 +63,7 @@ const postFetchOrdersByUser = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE orders.UserId = :UserId;`,
@@ -56,18 +74,12 @@ const postFetchOrdersByUser = async (
                 }
             );
         } else {
-            let sort = "";
-            if (req.body.sort === "DATE ASC") {
-                sort = "orders.createdAt ASC";
-            } else if (req.body.sort === "DATE DESC") {
-                sort = "orders.createdAt DESC";
-            }
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, orders.name, orders.surname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE orders.UserId = :UserId
-                ORDER BY ${sort}`,
+                ORDER BY ${req.body.sort}`,
                 {
                     replacements: {
                         UserId: req.userId,
@@ -75,6 +87,7 @@ const postFetchOrdersByUser = async (
                 }
             );
         }
+
         if (orders.length > 0) {
             res.status(200).json({
                 orders: orders,
