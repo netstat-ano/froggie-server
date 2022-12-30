@@ -26,4 +26,5 @@ authRoutes.post(
     ],
     authController.postLoginUser
 );
+authRoutes.post("/fetch-user-details", authController.postFetchUserDetails);
 export default authRoutes;

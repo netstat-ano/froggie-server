@@ -20,6 +20,7 @@ const postAddOrder = async (
                 message: errors,
                 ok: false,
             });
+            return;
         }
         const [orderId, meta] = await sequelize.query(
             "INSERT INTO orders(UserId, name, surname, address, postalCode, city) VALUES(:UserId, :name, :surname, :address, :postalCode, :city)",

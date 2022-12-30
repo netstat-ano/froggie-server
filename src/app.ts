@@ -16,8 +16,10 @@ import productRoutes from "./routes/productRoutes";
 import Cart from "./models/Cart";
 import Order from "./models/Order";
 import orderRoutes from "./routes/orderRoutes";
+import commentRoutes from "./routes/commentRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import OrderItems from "./models/OrderItems";
+import Comment from "./models/Comment";
 const app = express();
 
 const application = async () => {
@@ -56,6 +58,10 @@ const application = async () => {
     Order.belongsTo(User);
     Order.belongsToMany(Product, { through: OrderItems });
     Product.belongsToMany(Order, { through: OrderItems });
+    User.hasMany(Comment);
+    Comment.belongsTo(User);
+    Comment.belongsTo(Product);
+    Product.hasMany(Comment);
     Category.hasMany(Product, {
         foreignKey: "CategoryId",
         onDelete: "cascade",
@@ -96,6 +102,7 @@ const application = async () => {
     app.use("/auth", authRoutes);
     app.use("/product", productRoutes);
     app.use("/cart", cartRoutes);
+    app.use("/comment", commentRoutes);
     app.use(
         (
             error: ResponseError,

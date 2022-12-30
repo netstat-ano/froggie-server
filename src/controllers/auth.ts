@@ -5,6 +5,7 @@ import ResponseError from "../interfaces/ResponseError";
 import { validationResult } from "express-validator/src/validation-result";
 import jsonwebtoken from "jsonwebtoken";
 import secretKey from "../utils/secret";
+import sequelize from "../utils/database";
 const postCreateUser = async (
     req: Request,
     res: Response,
@@ -108,5 +109,25 @@ const postLoginUser = async (
         next(err);
     }
 };
-const authController = { postCreateUser, postLoginUser };
+const postFetchUserDetails = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const [fetchedUser] = await sequelize.query(
+        "SELECT username FROM users WHERE id = :UserId",
+        {
+            replacements: {
+                UserId: req.body.UserId,
+            },
+        }
+    );
+    if (fetchedUser.length === 0) {
+        res.status(404).json({ message: `User doesn't exist.`, ok: false });
+        return;
+    } else {
+        res.status(200).json({ user: fetchedUser[0] });
+    }
+};
+const authController = { postCreateUser, postLoginUser, postFetchUserDetails };
 export default authController;
