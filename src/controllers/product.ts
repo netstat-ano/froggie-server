@@ -67,7 +67,7 @@ const postFetchProductByCategory = async (
     res: Response,
     next: NextFunction
 ) => {
-    const [product, meta] = await sequelize.query(
+    const [products, meta] = await sequelize.query(
         "SELECT * FROM products WHERE CategoryId = :CategoryId",
         {
             replacements: {
@@ -75,8 +75,13 @@ const postFetchProductByCategory = async (
             },
         }
     );
-    if (product.length > 0) {
-        res.status(200).json(product);
+    for (const product of products as Product[]) {
+        if (typeof product.imagesURL === "string") {
+            product.imagesURL = JSON.parse(product.imagesURL);
+        }
+    }
+    if (products.length > 0) {
+        res.status(200).json(products);
     } else {
         res.status(404).json({ message: "Products not found", ok: false });
     }

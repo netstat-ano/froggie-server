@@ -21,4 +21,9 @@ orderRoutes.post(
     isAuth,
     orderController.postFetchOrdersByUser
 );
+orderRoutes.post(
+    "/check-if-user-purchase",
+    isAuth,
+    orderController.postCheckIfUserPurchase
+);
 export default orderRoutes;

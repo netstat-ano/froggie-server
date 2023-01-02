@@ -103,4 +103,26 @@ const postFetchOrdersByUser = async (
         next(err);
     }
 };
-export default { postAddOrder, postFetchOrdersByUser };
+const postCheckIfUserPurchase = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    const [order, meta] = await sequelize.query(
+        "SELECT orderitems.id FROM orderitems JOIN orders ON orders.id = orderitems.OrderId WHERE orders.UserId = :UserId AND orderitems.ProductId = :ProductId",
+        {
+            replacements: {
+                UserId: req.userId,
+                ProductId: req.body.id,
+            },
+        }
+    );
+    if (order.length > 0) {
+        res.status(200).json({ confirmed: 1 });
+        return;
+    } else {
+        res.status(200).json({ confirmed: 0 });
+        return;
+    }
+};
+export default { postAddOrder, postFetchOrdersByUser, postCheckIfUserPurchase };
