@@ -127,6 +127,7 @@ const postFetchUserDetails = async (
         return;
     } else {
         res.status(200).json({ user: fetchedUser[0] });
+        return;
     }
 };
 const authController = { postCreateUser, postLoginUser, postFetchUserDetails };

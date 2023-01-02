@@ -99,6 +99,10 @@ const postFetchProductByPk = async (
             ok: false,
         });
     } else {
+        if (typeof product.imagesURL === "string") {
+            product.imagesURL = JSON.parse(product.imagesURL);
+        }
+
         res.status(200).json({ product, ok: true });
     }
 };

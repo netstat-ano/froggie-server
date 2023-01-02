@@ -71,4 +71,75 @@ const postFetchComments = async (
     }
     res.status(404).json({ message: "Comments not found", ok: false });
 };
-export default { postAddComment, postFetchComments };
+const postUpdateComment = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const [isCommentRelatedToUser, meta] = await sequelize.query(
+            "SELECT id FROM comments WHERE id = :id AND UserId = :UserId",
+            {
+                replacements: {
+                    id: req.body.id,
+                    UserId: req.userId,
+                },
+            }
+        );
+
+        if (isCommentRelatedToUser.length > 0) {
+            const [updated, metaC] = await sequelize.query(
+                "UPDATE comments SET commentText = :commentText, rate = :rate WHERE id = :id",
+                {
+                    replacements: {
+                        commentText: req.body.commentText,
+                        rate: req.body.rate,
+                        id: req.body.id,
+                    },
+                }
+            );
+            const [comment] = await sequelize.query(
+                "SELECT * FROM comments WHERE id = :id",
+                {
+                    replacements: {
+                        id: req.body.id,
+                    },
+                }
+            );
+
+            res.status(200).json({ comment: comment[0], ok: true });
+            return;
+        } else {
+            res.status(422).json({ message: "Bad data", ok: false });
+            return;
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+const postDeleteComment = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const [result] = await sequelize.query(
+            "DELETE FROM comments WHERE id = :id",
+            {
+                replacements: {
+                    id: req.body.id,
+                },
+            }
+        );
+        res.status(200).json({ message: "Comment deleted", ok: true });
+        return;
+    } catch (err) {
+        next(err);
+    }
+};
+export default {
+    postAddComment,
+    postFetchComments,
+    postUpdateComment,
+    postDeleteComment,
+};
