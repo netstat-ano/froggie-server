@@ -76,7 +76,7 @@ const postFetchOrdersByUser = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, orders.name, orders.surname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE orders.UserId = :UserId

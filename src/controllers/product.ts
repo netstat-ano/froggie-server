@@ -162,11 +162,33 @@ const postUpdateProduct = async (
         next(err);
     }
 };
+const postFetchAverageRate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const [rate, meta] = await sequelize.query(
+        "SELECT ROUND(AVG(rate), 1) as rate FROM comments WHERE ProductId = :ProductId",
+        {
+            replacements: {
+                ProductId: req.body.ProductId,
+            },
+        }
+    );
+    const parsedRate = rate as [{ rate: null | number }];
+    if (rate.length > 0) {
+        res.status(200).json({ rate: parsedRate[0].rate, ok: true });
+        return;
+    } else {
+        res.status(404).json({ message: "Product not found", ok: false });
+    }
+};
 const productController = {
     postCreateProduct,
     postFetchProducts,
     postFetchProductByCategory,
     postFetchProductByPk,
     postUpdateProduct,
+    postFetchAverageRate,
 };
 export default productController;

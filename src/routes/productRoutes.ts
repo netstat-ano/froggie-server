@@ -40,4 +40,8 @@ productRoutes.post(
     isAdminAuth,
     productController.postUpdateProduct
 );
+productRoutes.post(
+    "/fetch-average-rate",
+    productController.postFetchAverageRate
+);
 export default productRoutes;
