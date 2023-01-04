@@ -25,4 +25,5 @@ commentRoutes.post("/delete-comment", isAuth, comment.postDeleteComment);
 commentRoutes.post("/like-comment", isAuth, comment.postLikeComment);
 commentRoutes.post("/dislike-comment", isAuth, comment.postDislikeComment);
 commentRoutes.post("/fetch-reactions", comment.postFetchReactions);
+commentRoutes.post("/check-like-status", isAuth, comment.postCheckLikeStatus);
 export default commentRoutes;

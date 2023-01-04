@@ -3,6 +3,8 @@ import e, { Response, NextFunction, Request } from "express";
 import { validationResult } from "express-validator";
 import errorsArrayToString from "../utils/errorsArrayToString";
 import sequelize from "../utils/database";
+import Likes from "../models/Likes";
+import Dislikes from "../models/Dislikes";
 const postAddComment = async (
     req: AuthenticationRequest,
     res: Response,
@@ -195,9 +197,14 @@ const postLikeComment = async (
             },
         }
     );
+
     if (isUserLikeIt.length > 0) {
-        res.status(200).json({ message: "User likes it already", ok: false });
-        return;
+        const like = isUserLikeIt[0] as Likes;
+        await sequelize.query("DELETE FROM likes WHERE id = :id", {
+            replacements: {
+                id: like.id,
+            },
+        });
     }
     const [isUserDislikeIt] = await sequelize.query(
         "SELECT * FROM dislikes WHERE UserId = :UserId AND CommentId = :CommentId",
@@ -208,6 +215,7 @@ const postLikeComment = async (
             },
         }
     );
+
     if (isUserDislikeIt.length > 0) {
         const dislike = isUserDislikeIt[0] as { id: number };
         await sequelize.query("DELETE FROM dislikes WHERE id = :id", {
@@ -216,15 +224,17 @@ const postLikeComment = async (
             },
         });
     }
-    await sequelize.query(
-        "INSERT INTO likes(CommentId, UserId) VALUES(:CommentId, :UserId)",
-        {
-            replacements: {
-                CommentId: req.body.id,
-                UserId: req.userId,
-            },
-        }
-    );
+    if (isUserLikeIt.length === 0) {
+        await sequelize.query(
+            "INSERT INTO likes(CommentId, UserId) VALUES(:CommentId, :UserId)",
+            {
+                replacements: {
+                    CommentId: req.body.id,
+                    UserId: req.userId,
+                },
+            }
+        );
+    }
     const [currentLikes] = await sequelize.query(
         "SELECT count(CommentId) as likes FROM likes WHERE CommentId = :CommentId",
         {
@@ -265,8 +275,12 @@ const postDislikeComment = async (
         }
     );
     if (isUserDislikeIt.length > 0) {
-        res.status(200).json({ message: "User likes it already", ok: false });
-        return;
+        const dislike = isUserDislikeIt[0] as Dislikes;
+        await sequelize.query("DELETE FROM dislikes WHERE id = :id", {
+            replacements: {
+                id: dislike.id,
+            },
+        });
     }
     const [isUserLikeIt] = await sequelize.query(
         "SELECT * FROM likes WHERE UserId = :UserId AND CommentId = :CommentId",
@@ -285,15 +299,17 @@ const postDislikeComment = async (
             },
         });
     }
-    await sequelize.query(
-        "INSERT INTO dislikes(CommentId, UserId) VALUES(:CommentId, :UserId)",
-        {
-            replacements: {
-                CommentId: req.body.id,
-                UserId: req.userId,
-            },
-        }
-    );
+    if (isUserDislikeIt.length === 0) {
+        await sequelize.query(
+            "INSERT INTO dislikes(CommentId, UserId) VALUES(:CommentId, :UserId)",
+            {
+                replacements: {
+                    CommentId: req.body.id,
+                    UserId: req.userId,
+                },
+            }
+        );
+    }
     const [currentLikes] = await sequelize.query(
         "SELECT count(CommentId) as likes FROM likes WHERE CommentId = :CommentId",
         {
@@ -353,6 +369,41 @@ const postFetchReactions = async (
         ok: true,
     });
 };
+const postCheckLikeStatus = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    const [currentLikes] = await sequelize.query(
+        "SELECT id FROM likes WHERE CommentId = :CommentId AND UserId = :UserId",
+        {
+            replacements: {
+                CommentId: req.body.id,
+                UserId: req.userId,
+            },
+        }
+    );
+    if (currentLikes.length === 0) {
+        const [currentDislikes] = await sequelize.query(
+            "SELECT id FROM dislikes WHERE CommentId = :CommentId AND UserId = :UserId",
+            {
+                replacements: {
+                    CommentId: req.body.id,
+                    UserId: req.userId,
+                },
+            }
+        );
+        if (currentDislikes.length === 0) {
+            res.status(200).json({ status: "none", ok: true });
+            return;
+        }
+        res.status(200).json({ status: "dislike", ok: true });
+        return;
+    } else {
+        const likes = currentLikes as { likes: number }[];
+        res.status(200).json({ status: "like", ok: true });
+    }
+};
 export default {
     postAddComment,
     postFetchComments,
@@ -361,4 +412,5 @@ export default {
     postLikeComment,
     postDislikeComment,
     postFetchReactions,
+    postCheckLikeStatus,
 };
