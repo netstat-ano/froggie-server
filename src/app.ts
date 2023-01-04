@@ -20,6 +20,8 @@ import commentRoutes from "./routes/commentRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import OrderItems from "./models/OrderItems";
 import Comment from "./models/Comment";
+import Dislikes from "./models/Dislikes";
+import Likes from "./models/Likes";
 const app = express();
 
 const application = async () => {
@@ -48,6 +50,12 @@ const application = async () => {
             cb(null, false);
         }
     };
+    Comment.belongsToMany(User, {
+        through: Likes,
+    });
+    Comment.belongsToMany(User, {
+        through: Dislikes,
+    });
     Cart.belongsToMany(Product, {
         through: CartItems,
     });

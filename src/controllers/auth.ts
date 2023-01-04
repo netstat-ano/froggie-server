@@ -90,15 +90,20 @@ const postLoginUser = async (
             next(error);
             return;
         }
-        const token = jsonwebtoken.sign(
+        let expiresTime = "1h";
+        if (req.body.dontLogout) {
+            expiresTime = "3650d";
+        }
+        var token = jsonwebtoken.sign(
             {
                 email: loadedUser.email,
                 id: loadedUser.id,
                 type: loadedUser.type,
             },
             secretKey,
-            { expiresIn: "1h" }
+            { expiresIn: expiresTime }
         );
+
         res.status(200).json({
             token: token,
             userId: loadedUser.id,

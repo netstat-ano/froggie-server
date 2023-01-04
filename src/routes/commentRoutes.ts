@@ -22,4 +22,7 @@ commentRoutes.post(
 commentRoutes.post("/fetch-comments", comment.postFetchComments);
 commentRoutes.post("/update-comment", isAuth, comment.postUpdateComment);
 commentRoutes.post("/delete-comment", isAuth, comment.postDeleteComment);
+commentRoutes.post("/like-comment", isAuth, comment.postLikeComment);
+commentRoutes.post("/dislike-comment", isAuth, comment.postDislikeComment);
+commentRoutes.post("/fetch-reactions", comment.postFetchReactions);
 export default commentRoutes;
