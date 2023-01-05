@@ -1,6 +1,7 @@
 import express from "express";
 import authController from "../controllers/auth";
 import { body } from "express-validator/check";
+import isAuth from "../middlewares/is-auth";
 const authRoutes = express.Router();
 
 authRoutes.post(
@@ -25,6 +26,19 @@ authRoutes.post(
             .withMessage("Password must contains min 8 characters."),
     ],
     authController.postLoginUser
+);
+authRoutes.post(
+    "/change-password",
+    isAuth,
+    [
+        body("oldPassword")
+            .isLength({ min: 8 })
+            .withMessage("Old password must contains min 8 characters."),
+        body("newPassword")
+            .isLength({ min: 8 })
+            .withMessage("New password must contains min 8 characters."),
+    ],
+    authController.postChangePassword
 );
 authRoutes.post("/fetch-user-details", authController.postFetchUserDetails);
 export default authRoutes;

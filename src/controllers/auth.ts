@@ -6,6 +6,8 @@ import { validationResult } from "express-validator/src/validation-result";
 import jsonwebtoken from "jsonwebtoken";
 import secretKey from "../utils/secret";
 import sequelize from "../utils/database";
+import AuthenticationRequest from "../interfaces/AuthenticationRequest";
+import errorsArrayToString from "../utils/errorsArrayToString";
 const postCreateUser = async (
     req: Request,
     res: Response,
@@ -135,5 +137,40 @@ const postFetchUserDetails = async (
         return;
     }
 };
-const authController = { postCreateUser, postLoginUser, postFetchUserDetails };
+const postChangePassword = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    const valResult = validationResult(req);
+    if (!valResult.isEmpty()) {
+        const errors = errorsArrayToString(valResult.array());
+        res.status(422).json({ message: errors, ok: false });
+        return;
+    }
+    const user = await User.findOne({
+        where: {
+            id: req.userId,
+        },
+    });
+    if (!user) {
+        res.status(422).json({ message: `User doesn't exist`, ok: false });
+        return;
+    }
+    const isEqual = bcryptjs.compare(req.body.oldPassword, user.password);
+    if (!isEqual) {
+        res.status(422).json({ message: "Bad data", ok: false });
+        return;
+    }
+    user.password = await bcryptjs.hash(req.body.newPassword, 12);
+    user.save();
+    res.status(200).json({ message: "User password updated!", ok: true });
+    return;
+};
+const authController = {
+    postCreateUser,
+    postLoginUser,
+    postFetchUserDetails,
+    postChangePassword,
+};
 export default authController;
