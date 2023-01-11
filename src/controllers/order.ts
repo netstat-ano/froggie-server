@@ -125,4 +125,14 @@ const postCheckIfUserPurchase = async (
         return;
     }
 };
-export default { postAddOrder, postFetchOrdersByUser, postCheckIfUserPurchase };
+const postFetchOrders = async (
+    req: AuthenticationRequest,
+    res: Response,
+    next: NextFunction
+) => {};
+export default {
+    postAddOrder,
+    postFetchOrdersByUser,
+    postCheckIfUserPurchase,
+    postFetchOrders,
+};

@@ -41,12 +41,21 @@ const postCreateUser = async (
             return;
         }
         const hashedPassword = await bcryptjs.hash(password, 12);
-        const user = await User.create({
-            username,
-            email,
-            password: hashedPassword,
-            type: "admin",
-        });
+        if (req.body.admin) {
+            const user = await User.create({
+                username,
+                email,
+                password: hashedPassword,
+                type: "admin",
+            });
+        } else {
+            const user = await User.create({
+                username,
+                email,
+                password: hashedPassword,
+                type: "customer",
+            });
+        }
         res.status(201).json({
             message: "User created succesfully.",
             ok: true,

@@ -3,8 +3,9 @@ import jws from "jsonwebtoken";
 import ResponseError from "../interfaces/ResponseError";
 import secretKey from "../utils/secret";
 import UserJwtPayload from "../interfaces/UserJwtPayload";
+import User from "../models/User";
 import AuthenticationRequest from "../interfaces/AuthenticationRequest";
-const isCustomerAuth = (
+const isCustomerAuth = async (
     req: AuthenticationRequest,
     res: Response,
     next: NextFunction
@@ -22,9 +23,11 @@ const isCustomerAuth = (
             throw error;
         }
         if (decodedToken.type === "customer") {
-            req.body.decodedToken.userId = decodedToken.id;
-            req.body.decodedToken.token = decodedToken.token;
-            req.body.decodedToken.type = decodedToken.type;
+            const currentUser = await User.findByPk(decodedToken.id);
+            req.user = currentUser!;
+            req.userId = decodedToken.id;
+            req.token = decodedToken.token;
+            req.type = decodedToken.type;
             next();
         }
     }

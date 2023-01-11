@@ -2,6 +2,7 @@ import express from "express";
 import isAuth from "../middlewares/is-auth";
 import orderController from "../controllers/order";
 import { body } from "express-validator";
+import isAdminAuth from "../middlewares/is-admin-auth";
 const orderRoutes = express.Router();
 
 orderRoutes.post(
@@ -26,4 +27,5 @@ orderRoutes.post(
     isAuth,
     orderController.postCheckIfUserPurchase
 );
+orderRoutes.post("/fetch-orders", isAdminAuth, orderController.postFetchOrders);
 export default orderRoutes;
