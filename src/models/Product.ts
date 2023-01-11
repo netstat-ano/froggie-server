@@ -35,7 +35,7 @@ Product.init(
             allowNull: false,
         },
         imagesURL: {
-            type: Sequelize.JSON,
+            type: Sequelize.TEXT,
             allowNull: false,
         },
         price: {
