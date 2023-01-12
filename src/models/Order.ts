@@ -7,6 +7,8 @@ class Order extends Model {
     declare address: string;
     declare postalCode: string;
     declare city: string;
+    declare completed: number;
+    declare canceled: number;
 }
 
 Order.init(
@@ -47,6 +49,14 @@ Order.init(
             defaultValue: Sequelize.literal(
                 "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
             ),
+        },
+        completed: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+        },
+        canceled: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
         },
     },
     {
