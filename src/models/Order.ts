@@ -4,11 +4,11 @@ class Order extends Model {
     declare id?: number;
     declare name: string;
     declare surname: string;
-    declare address: string;
-    declare postalCode: string;
-    declare city: string;
+    declare grade: string;
     declare completed: number;
     declare canceled: number;
+    declare classroom?: string;
+    declare locker?: number;
 }
 
 Order.init(
@@ -27,19 +27,15 @@ Order.init(
             type: Sequelize.STRING,
             allowNull: false,
         },
-        address: {
+        grade: {
             type: Sequelize.STRING,
-            allowNull: false,
         },
-        postalCode: {
-            type: Sequelize.STRING,
-            allowNull: false,
+        locker: {
+            type: Sequelize.INTEGER,
         },
-        city: {
-            type: Sequelize.STRING,
-            allowNull: false,
+        classroom: {
+            type: Sequelize.INTEGER,
         },
-
         createdAt: {
             type: Sequelize.DATE,
             defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),

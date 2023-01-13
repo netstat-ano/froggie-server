@@ -121,8 +121,14 @@ const postFetchCart = async (
             },
         }
     );
-    if (result) {
-        res.status(200).json({ cart: result, ok: true });
+
+    if (result.length > 0) {
+        var cart = result[0] as any;
+        cart.imagesURL = JSON.parse(cart.imagesURL);
+    }
+    if (cart) {
+        res.status(200).json({ cart: [cart], ok: true });
+        return;
     } else {
         res.status(404).json({ message: "Cart doesn't founded", ok: false });
     }

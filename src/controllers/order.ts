@@ -24,15 +24,15 @@ const postAddOrder = async (
             return;
         }
         const [orderId, meta] = await sequelize.query(
-            "INSERT INTO orders(UserId, name, surname, address, postalCode, city, completed, canceled) VALUES(:UserId, :name, :surname, :address, :postalCode, :city, 0, 0)",
+            "INSERT INTO orders(UserId, name, surname, grade, completed, canceled, locker, classroom) VALUES(:UserId, :name, :surname, :grade, 0, 0, :locker, :classroom)",
             {
                 replacements: {
                     UserId: req.userId,
                     name: req.body.name,
                     surname: req.body.surname,
-                    address: req.body.address,
-                    postalCode: req.body.postalCode,
-                    city: req.body.city,
+                    grade: req.body.grade,
+                    locker: req.body.locker || null,
+                    classroom: req.body.classroom || null,
                 },
             }
         );
@@ -65,7 +65,8 @@ const postFetchOrdersByUser = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, orders.name as customerName, orders.surname as customerSurname, orders.grade,
+                 products.imagesURL, products.CategoryId, products.price, products.description, orders.locker, orders.classroom, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE orders.UserId = :UserId
@@ -79,7 +80,7 @@ const postFetchOrdersByUser = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, orders.name as customerName, orders.locker, orders.classroom, orders.surname as customerSurname,orders.grade, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE orders.UserId = :UserId
@@ -137,7 +138,8 @@ const postFetchOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+              orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE completed = 0 AND canceled = 0`,
@@ -149,7 +151,8 @@ const postFetchOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+               orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE completed = 0 AND canceled = 0
@@ -238,7 +241,8 @@ const postFetchCompletedOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled ,orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled ,orders.name as customerName, orders.surname as customerSurname, 
+               orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE completed = 1`,
@@ -250,7 +254,8 @@ const postFetchCompletedOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled ,orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled ,orders.name as customerName, orders.surname as customerSurname,
+                 orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE completed = 1
@@ -285,7 +290,8 @@ const postFetchUncompletedOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE completed = 0 AND canceled = 0`,
@@ -297,7 +303,8 @@ const postFetchUncompletedOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE completed = 0 AND canceled = 0
@@ -332,14 +339,16 @@ const postFetchCanceledOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE canceled = 1`
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+               orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE canceled = 1
@@ -370,7 +379,8 @@ const postFetchCanceledOrdersByUserId = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE canceled = 1 AND orders.UserId = :UserId`,
@@ -382,7 +392,8 @@ const postFetchCanceledOrdersByUserId = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+               orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE canceled = 1 AND orders.UserId = :UserId
@@ -418,7 +429,8 @@ const postFetchCompletedOrdersByUserId = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname,
+                 orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE completed = 1 AND orders.UserId = :UserId`,
@@ -430,7 +442,8 @@ const postFetchCompletedOrdersByUserId = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+              orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE completed = 1 AND orders.UserId = :UserId
@@ -465,7 +478,8 @@ const postFetchUncompletedOrdersByUserId = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
             WHERE completed = 0 AND canceled = 0 AND orders.UserId = :UserId`,
@@ -477,7 +491,7 @@ const postFetchUncompletedOrdersByUserId = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
+                `SELECT orderitems.amount, products.name, completed, orders.locker, orders.classroom, canceled, orders.name as customerName, orders.surname as customerSurname, orders.address, orders.postalCode, orders.city, products.imagesURL, products.CategoryId, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
                 WHERE completed = 0 AND canceled = 0 AND orders.UserId = :UserId

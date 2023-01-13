@@ -11,9 +11,25 @@ orderRoutes.post(
     [
         body("name").notEmpty().withMessage("Name is required."),
         body("surname").notEmpty().withMessage("Surname is required."),
-        body("address").notEmpty().withMessage("Address is required."),
-        body("postalCode").notEmpty().withMessage("Postal code is required."),
-        body("city").notEmpty().withMessage("City is required."),
+        body("grade").notEmpty().withMessage("Grade is required."),
+        body("classroom").custom((classroom, { req }) => {
+            if (
+                (!req.body.locker && typeof classroom === "number") ||
+                req.body.locker
+            ) {
+                return true;
+            }
+            throw new Error("Classroom is required.");
+        }),
+        body("locker").custom((locker, { req }) => {
+            if (
+                (!req.body.classroom && typeof locker === "number") ||
+                req.body.classroom
+            ) {
+                return true;
+            }
+            throw new Error("Locker is required.");
+        }),
     ],
     isAuth,
     orderController.postAddOrder
