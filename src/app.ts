@@ -22,6 +22,9 @@ import OrderItems from "./models/OrderItems";
 import Comment from "./models/Comment";
 import Dislikes from "./models/Dislikes";
 import Likes from "./models/Likes";
+import Notification from "./models/Notification";
+import notificationRoutes from "./routes/notificationRoutes";
+import socket from "./socket";
 const app = express();
 
 const application = async () => {
@@ -67,6 +70,8 @@ const application = async () => {
     Order.belongsToMany(Product, { through: OrderItems });
     Product.belongsToMany(Order, { through: OrderItems });
     User.hasMany(Comment);
+    User.hasMany(Notification);
+    Notification.belongsTo(User);
     Comment.belongsTo(User);
     Comment.belongsTo(Product);
     Product.hasMany(Comment);
@@ -111,6 +116,7 @@ const application = async () => {
     app.use("/product", productRoutes);
     app.use("/cart", cartRoutes);
     app.use("/comment", commentRoutes);
+    app.use("/notification", notificationRoutes);
     app.use(
         (
             error: ResponseError,
@@ -125,6 +131,7 @@ const application = async () => {
         }
     );
 
-    app.listen(process.env.PORT || 8080);
+    const server = app.listen(process.env.PORT || 8080);
+    socket.init(server);
 };
 application();

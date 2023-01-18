@@ -138,7 +138,7 @@ const postFetchOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, orders.UserId , completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
               orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
@@ -151,7 +151,7 @@ const postFetchOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, completed, orders.UserId , canceled, orders.name as customerName, orders.surname as customerSurname, 
                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
@@ -241,7 +241,7 @@ const postFetchCompletedOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled ,orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, orders.UserId , completed, canceled ,orders.name as customerName, orders.surname as customerSurname, 
                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
@@ -254,7 +254,7 @@ const postFetchCompletedOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled ,orders.name as customerName, orders.surname as customerSurname,
+                `SELECT orderitems.amount, products.name, orders.UserId , completed, canceled ,orders.name as customerName, orders.surname as customerSurname,
                  orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
@@ -290,7 +290,7 @@ const postFetchUncompletedOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, orders.UserId , completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
                 orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
@@ -303,7 +303,7 @@ const postFetchUncompletedOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, completed, orders.UserId , canceled, orders.name as customerName, orders.surname as customerSurname, 
                 orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
@@ -339,7 +339,7 @@ const postFetchCanceledOrders = async (
     try {
         if (!req.body.sort) {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, completed, orders.UserId , canceled, orders.name as customerName, orders.surname as customerSurname, 
                 orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
             JOIN products on orderitems.ProductId = products.id
             JOIN orders on orders.id = orderitems.OrderId
@@ -347,7 +347,7 @@ const postFetchCanceledOrders = async (
             );
         } else {
             var [orders, meta] = await sequelize.query(
-                `SELECT orderitems.amount, products.name, completed, canceled, orders.name as customerName, orders.surname as customerSurname, 
+                `SELECT orderitems.amount, products.name, completed, orders.UserId , canceled, orders.name as customerName, orders.surname as customerSurname, 
                orders.grade, products.imagesURL, products.CategoryId, orders.locker, orders.classroom, products.price, products.description, orderitems.OrderId, orders.createdAt  FROM orderitems
                 JOIN products on orderitems.ProductId = products.id
                 JOIN orders on orders.id = orderitems.OrderId
