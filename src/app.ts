@@ -26,7 +26,6 @@ import Notification from "./models/Notification";
 import notificationRoutes from "./routes/notificationRoutes";
 import socket from "./socket";
 import FTP from "ftp";
-import Ftp from "jsftp";
 const sftpStorage = require("multer-sftp");
 const app = express();
 

@@ -7,7 +7,6 @@ import sequelize from "../utils/database";
 import Product from "../models/Product";
 import initFtp from "../utils/ftp";
 import FTP from "ftp";
-import jsftp from "jsftp";
 
 const postAddCategory = async (
     req: AuthenticationRequest,
