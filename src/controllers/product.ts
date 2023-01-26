@@ -8,6 +8,7 @@ import Product from "../models/Product";
 import fs from "fs";
 import path from "path";
 import { validationResult } from "express-validator";
+import socket from "../socket";
 
 const postCreateProduct = async (
     req: AuthenticationRequest,
@@ -15,6 +16,10 @@ const postCreateProduct = async (
     next: NextFunction
 ) => {
     const valResult = validationResult(req);
+    console.log(req.files);
+
+    console.log("ADDING");
+
     if (!valResult.isEmpty()) {
         let errors = "";
         const errorsArray = valResult.array();
@@ -31,7 +36,7 @@ const postCreateProduct = async (
             paths.push(img.path);
         }
 
-        sequelize.query(
+        const [id] = await sequelize.query(
             `INSERT INTO products(name, description, imagesURL, price, CategoryId, UserId)
             VALUES(:name, :description, :imagesURL, :price, :CategoryId, :UserId);`,
             {
@@ -46,6 +51,7 @@ const postCreateProduct = async (
                 type: QueryTypes.INSERT,
             }
         );
+        res.status(201).json({ message: id, ok: true });
     } else {
         const err: ResponseError = new Error("Files are required");
         err.status = 422;
@@ -136,7 +142,8 @@ const postUpdateProduct = async (
             { replacements: { id: req.body.ProductId } }
         );
         for (const product of products as Product[]) {
-            for (const url of product.imagesURL) {
+            const imagesURL = JSON.parse(product.imagesURL);
+            for (const url of imagesURL) {
                 fs.unlink(path.join(__dirname, "..", "..", url), (err) => {
                     if (err) {
                         next(err);
@@ -157,6 +164,8 @@ const postUpdateProduct = async (
                 },
             }
         );
+        const io = socket.getIo();
+        io.emit("product", { action: "UPDATE" });
         res.status(200).json({ message: "Product updated!", ok: true });
     } catch (err) {
         next(err);

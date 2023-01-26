@@ -5,8 +5,10 @@ import { validationResult } from "express-validator";
 import ResponseError from "../interfaces/ResponseError";
 import sequelize from "../utils/database";
 import Product from "../models/Product";
-import fs from "fs";
-import path from "path";
+import initFtp from "../utils/ftp";
+import FTP from "ftp";
+import jsftp from "jsftp";
+
 const postAddCategory = async (
     req: AuthenticationRequest,
     res: Response,
@@ -62,15 +64,27 @@ const postDeleteCategory = async (
                 "SELECT * FROM products WHERE CategoryId = :categoryId",
                 { replacements: { categoryId: findedCategory.id } }
             );
-            for (const product of products as Product[]) {
-                for (const url of product.imagesURL) {
-                    fs.unlink(path.join(__dirname, "..", "..", url), (err) => {
-                        if (err) {
-                            next(err);
-                        }
-                    });
+            const ftp = new FTP();
+            ftp.connect({
+                host: process.env.FTP_HOST,
+                port: 22,
+                user: process.env.FTP_USER,
+                password: process.env.FTP_PASSWORD,
+            });
+            ftp.on("ready", () => {
+                for (const product of products as Product[]) {
+                    const urls = JSON.parse(product.imagesURL);
+                    for (const url of urls) {
+                        ftp.delete(url, (err) => {
+                            if (err) {
+                                next(err);
+                            }
+                        });
+                    }
                 }
-            }
+                ftp.end();
+            });
+
             await findedCategory.destroy();
             res.status(200).json({ message: "Category has been deleted" });
         } else {

@@ -25,15 +25,25 @@ import Likes from "./models/Likes";
 import Notification from "./models/Notification";
 import notificationRoutes from "./routes/notificationRoutes";
 import socket from "./socket";
+import FTP from "ftp";
+import Ftp from "jsftp";
+const sftpStorage = require("multer-sftp");
 const app = express();
 
 const application = async () => {
-    const fileStorage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, "public/images");
+    const storage = sftpStorage({
+        sftp: {
+            host: process.env.FTP_HOST,
+            user: process.env.FTP_USER,
+            password: process.env.FTP_PASSWORD,
+            port: 22,
+            readyTimeout: 40000,
         },
-        filename: (req, file, cb) => {
-            cb(null, `${Date.now()}-${file.originalname}`);
+        destination: (req: any, file: any, callback: any) => {
+            callback(null, "");
+        },
+        filename: (req: any, file: any, callback: any) => {
+            callback(null, `${Date.now()}-${file.originalname}`);
         },
     });
 
@@ -53,6 +63,7 @@ const application = async () => {
             cb(null, false);
         }
     };
+
     Comment.belongsToMany(User, {
         through: Likes,
     });
@@ -102,13 +113,8 @@ const application = async () => {
         );
         next();
     });
-    app.use(express.static("public"));
-    app.use("/public/images", express.static(path.join("public/images")));
     app.use(
-        multer({ storage: fileStorage, fileFilter: fileFilter }).array(
-            "images",
-            8
-        )
+        multer({ storage: storage, fileFilter: fileFilter }).array("images", 8)
     );
     app.use("/order", orderRoutes);
     app.use("/category", categoryRoutes);

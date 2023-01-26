@@ -3,6 +3,11 @@
         "DB_HOST": "localhost",
         "DB_NAME": "froggie",
         "DB_USER": "root",
-        "DB_PASSWORD": "root"
+        "DB_PASSWORD": "root",
+        "FTP_HOST": "ftp.odnkalisz.nazwa.pl",
+        "FTP_USER": "odnkalisz_app",
+        "FTP_PASSWORD": "BChrzanowski1234",
+        "FTP_SITE": "odnkalisz.nazwa.pl/app",
+        "FTP_IMG_SITE": "odnkalisz.nazwa.pl/app"
     }
 }
