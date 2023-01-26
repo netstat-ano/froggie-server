@@ -5,7 +5,6 @@ import { validationResult } from "express-validator";
 import ResponseError from "../interfaces/ResponseError";
 import sequelize from "../utils/database";
 import Product from "../models/Product";
-import initFtp from "../utils/ftp";
 import FTP from "ftp";
 
 const postAddCategory = async (
