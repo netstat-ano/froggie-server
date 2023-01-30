@@ -98,7 +98,7 @@ const application = async () => {
     });
     Product.belongsTo(User, { foreignKey: "UserId" });
 
-    await sequelize.sync();
+    await sequelize.sync({ force: true });
     app.use(bodyParser.json());
     app.use((req, res, next) => {
         res.setHeader("Access-Control-Allow-Origin", "*");
@@ -130,8 +130,6 @@ const application = async () => {
             next: NextFunction
         ) => {
             const status = error.status || 500;
-            console.log(error);
-
             res.status(status).json({ message: error.message });
         }
     );

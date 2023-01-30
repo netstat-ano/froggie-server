@@ -4,6 +4,7 @@ import sequelize from "../utils/database";
 import CartItems from "../models/CartItems";
 import { validationResult } from "express-validator";
 import Order from "../models/Order";
+import socket from "../socket";
 const postAddOrder = async (
     req: AuthenticationRequest,
     res: Response,
@@ -189,6 +190,8 @@ const postCompleteOrder = async (
         order.canceled = 0;
         order.completed = 1;
         await order.save();
+        const io = socket.getIo();
+        io.emit("order", { action: "change", UserId: order.UserId });
         res.status(200).json({
             message: "Order marked as completed",
             ok: true,
@@ -207,6 +210,8 @@ const postUncompleteOrder = async (
         order.canceled = 0;
         order.completed = 0;
         await order.save();
+        const io = socket.getIo();
+        io.emit("order", { action: "change", UserId: order.UserId });
         res.status(200).json({
             message: "Order marked as completed",
             ok: true,
@@ -225,6 +230,8 @@ const postCancelOrder = async (
         order.canceled = 1;
         order.completed = 0;
         await order.save();
+        const io = socket.getIo();
+        io.emit("order", { action: "change", UserId: order.UserId });
         res.status(200).json({
             message: "Order marked as canceled",
             ok: true,

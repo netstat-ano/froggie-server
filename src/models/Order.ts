@@ -2,6 +2,7 @@ import sequelize from "../utils/database";
 import Sequelize, { Model } from "sequelize";
 class Order extends Model {
     declare id?: number;
+    declare UserId?: number;
     declare name: string;
     declare surname: string;
     declare grade: string;
