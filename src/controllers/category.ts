@@ -65,7 +65,7 @@ const postDeleteCategory = async (
             const ftp = new FTP();
             ftp.connect({
                 host: process.env.FTP_HOST,
-                port: 22,
+                port: 21,
                 user: process.env.FTP_USER,
                 password: process.env.FTP_PASSWORD,
             });

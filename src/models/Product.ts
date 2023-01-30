@@ -31,7 +31,7 @@ Product.init(
             allowNull: false,
         },
         description: {
-            type: Sequelize.STRING,
+            type: Sequelize.TEXT,
             allowNull: false,
         },
         imagesURL: {

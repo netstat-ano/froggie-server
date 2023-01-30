@@ -5,8 +5,7 @@ import AuthenticationRequest from "../interfaces/AuthenticationRequest";
 import ResponseError from "../interfaces/ResponseError";
 import sequelize from "../utils/database";
 import Product from "../models/Product";
-import fs from "fs";
-import path from "path";
+import FTP from "ftp";
 import { validationResult } from "express-validator";
 import socket from "../socket";
 
@@ -16,9 +15,6 @@ const postCreateProduct = async (
     next: NextFunction
 ) => {
     const valResult = validationResult(req);
-    console.log(req.files);
-
-    console.log("ADDING");
 
     if (!valResult.isEmpty()) {
         let errors = "";
@@ -112,6 +108,37 @@ const postFetchProductByPk = async (
         res.status(200).json({ product, ok: true });
     }
 };
+const postDeleteProduct = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const product = await Product.findByPk(req.body.id);
+    if (product) {
+        const ftp = new FTP();
+        ftp.connect({
+            host: process.env.FTP_HOST,
+            port: 21,
+            user: process.env.FTP_USER,
+            password: process.env.FTP_PASSWORD,
+        });
+        ftp.on("ready", () => {
+            const urls = JSON.parse(product.imagesURL);
+            for (const url of urls) {
+                ftp.delete(url, (err) => {
+                    if (err) {
+                        next(err);
+                    }
+                });
+            }
+            ftp.end();
+        });
+        await product.destroy();
+        res.status(200).json({ message: "Products deleted", ok: true });
+    } else {
+        res.status(404).json({ message: "Product not found", ok: false });
+    }
+};
 const postUpdateProduct = async (
     req: Request,
     res: Response,
@@ -141,16 +168,26 @@ const postUpdateProduct = async (
             `SELECT * FROM products WHERE id = :id;`,
             { replacements: { id: req.body.ProductId } }
         );
-        for (const product of products as Product[]) {
-            const imagesURL = JSON.parse(product.imagesURL);
-            for (const url of imagesURL) {
-                fs.unlink(path.join(__dirname, "..", "..", url), (err) => {
-                    if (err) {
-                        next(err);
-                    }
-                });
+        const ftp = new FTP();
+        ftp.connect({
+            host: process.env.FTP_HOST,
+            port: 22,
+            user: process.env.FTP_USER,
+            password: process.env.FTP_PASSWORD,
+        });
+        ftp.on("ready", () => {
+            for (const product of products as Product[]) {
+                const urls = JSON.parse(product.imagesURL);
+                for (const url of urls) {
+                    ftp.delete(url, (err) => {
+                        if (err) {
+                            next(err);
+                        }
+                    });
+                }
             }
-        }
+            ftp.end();
+        });
         const [result, meta] = await sequelize.query(
             `UPDATE products SET name = :name, description = :description, price = :price, CategoryId = :CategoryId, imagesURL = :imagesURL WHERE id = :ProductId;`,
             {
@@ -199,5 +236,6 @@ const productController = {
     postFetchProductByPk,
     postUpdateProduct,
     postFetchAverageRate,
+    postDeleteProduct,
 };
 export default productController;

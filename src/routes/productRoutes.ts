@@ -10,11 +10,17 @@ productRoutes.post(
         body("productName").notEmpty().withMessage("Name can't be empty."),
         body("description")
             .notEmpty()
-            .withMessage("Description can't be empty."),
+            .isLength({ max: 65535 })
+            .withMessage("Description invalid."),
         body("price").notEmpty().withMessage("Price can't be empty."),
     ],
     isAdminAuth,
     productController.postCreateProduct
+);
+productRoutes.post(
+    "/delete-product",
+    isAdminAuth,
+    productController.postDeleteProduct
 );
 productRoutes.post("/fetch-products", productController.postFetchProducts);
 
@@ -33,7 +39,8 @@ productRoutes.post(
         body("productName").notEmpty().withMessage("Name can't be empty."),
         body("description")
             .notEmpty()
-            .withMessage("Description can't be empty."),
+            .isLength({ max: 65535 })
+            .withMessage("Description invalid."),
         body("price").notEmpty().withMessage("Price can't be empty."),
         body("ProductId").notEmpty().withMessage("Invalid product id."),
     ],

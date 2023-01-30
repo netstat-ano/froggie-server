@@ -34,8 +34,17 @@ const postCreateUser = async (
             return;
         }
         const isEmailExist = await User.findOne({ where: { email: email } });
+        const isUsernameExist = await User.findOne({
+            where: { username: username },
+        });
         if (isEmailExist) {
             let error: ResponseError = new Error("This email exists.");
+            error.status = 422;
+            next(error);
+            return;
+        }
+        if (isUsernameExist) {
+            let error: ResponseError = new Error("This username exists.");
             error.status = 422;
             next(error);
             return;
