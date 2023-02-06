@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import { QueryTypes } from "sequelize";
 import Image from "../interfaces/Image";
 import AuthenticationRequest from "../interfaces/AuthenticationRequest";
@@ -69,14 +69,32 @@ const postFetchProductByCategory = async (
     res: Response,
     next: NextFunction
 ) => {
-    const [products, meta] = await sequelize.query(
-        "SELECT * FROM products WHERE CategoryId = :CategoryId",
-        {
-            replacements: {
-                CategoryId: req.body.categoryId,
-            },
-        }
-    );
+    let sort = "";
+    if (
+        req.body.sort === "products.price ASC" ||
+        req.body.sort === "products.price DESC"
+    ) {
+        sort = req.body.sort;
+    }
+    if (sort) {
+        var [products, meta] = await sequelize.query(
+            `SELECT * FROM products WHERE CategoryId = :CategoryId ORDER BY ${sort}`,
+            {
+                replacements: {
+                    CategoryId: req.body.categoryId,
+                },
+            }
+        );
+    } else {
+        var [products, meta] = await sequelize.query(
+            "SELECT * FROM products WHERE CategoryId = :CategoryId",
+            {
+                replacements: {
+                    CategoryId: req.body.categoryId,
+                },
+            }
+        );
+    }
     for (const product of products as Product[]) {
         if (typeof product.imagesURL === "string") {
             product.imagesURL = JSON.parse(product.imagesURL);
