@@ -5,7 +5,7 @@ let io: any;
 const init = (server: Server) => {
     io = require("socket.io")(server, {
         cors: {
-            origin: process.env.CLIENT_URL,
+            origin: process.env.CLIENT_URL!,
             methods: ["GET", "POST"],
         },
     });
