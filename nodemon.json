@@ -8,6 +8,7 @@
         "FTP_USER": "odnkalisz_app",
         "FTP_PASSWORD": "BChrzanowski1234",
         "FTP_SITE": "odnkalisz.nazwa.pl/app",
-        "FTP_IMG_SITE": "odnkalisz.nazwa.pl/app"
+        "FTP_IMG_SITE": "odnkalisz.nazwa.pl/app",
+        "CLIENT_URL": "*"
     }
 }
